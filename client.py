@@ -2,6 +2,7 @@
 import os
 import socket
 import sys
+import signal
 
 if len(sys.argv) == 1:
     sys.exit('usage: %s [--server directory] args...' % sys.argv[0])
@@ -21,5 +22,11 @@ sock.connect('%s/.pool/serv' % dir)
 data = '%s\n%s\n%s\n%d\n%s\n' % (stdin_path, stdout_path, stderr_path, len(sys.argv[1:]), '\n'.join(sys.argv[1:]))
 sock.sendall('%d\n%s' % (len(data), data))
 
-status = int(sock.makefile('r').readline())
-sys.exit(status)
+pid = int(sock.makefile('r').readline())
+try:
+    status = int(sock.makefile('r').readline())
+except KeyboardInterrupt:
+    os.kill(pid, signal.SIGINT)
+    print
+else:
+    sys.exit(status)

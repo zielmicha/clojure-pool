@@ -63,6 +63,7 @@ def handle(sock):
     f = sock.makefile('r+', 1)
     pipe_w.write(f.read(int(f.readline())))
     pipe_w.flush()
+    f.write('%d\n' % pid)
     _pid, status = os.waitpid(pid, 0)
     f.write('%s\n' % status)
 
