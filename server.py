@@ -5,21 +5,47 @@ import sys
 import subprocess
 import Queue
 import threading
+import signal
 
 children = Queue.Queue(7)
-child_args = ['clojure', os.path.join(os.path.dirname(__file__), 'stub.clj')]
+child_args = ['clojure', os.path.abspath(os.path.join(os.path.dirname(__file__), 'stub.clj'))]
 
 if os.environ.get('CLASSPATH'):
     os.environ['CLASSPATH'] += ':'
 else:
     os.environ['CLASSPATH'] = ''
 
-os.environ['POOL_BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
-os.environ['CLASSPATH'] += os.path.abspath(os.path.dirname(__file__))
+basedir = os.environ['POOL_BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
+os.environ['CLASSPATH'] += basedir
+pids = []
+
+def exit():
+    for pid in pids:
+        try:
+            os.kill(pid, 15)
+        except OSError:
+            pass
+    print
+    os._exit(0)
+
+signal.signal(signal.SIGINT, lambda *_: exit())
 
 def main():
     if not os.path.exists('.pool'):
         os.mkdir('.pool')
+    if os.path.exists('.pool/serv'):
+        os.remove('.pool/serv')
+
+    with open('.pool/clojure', 'w') as f:
+        f.write('#!/bin/bash\nif [ $# = 0 ]; then echo "usage: $0 script.clj args..."; exit 1; fi\n'
+                'exec %s/client.py --server %s $*\n' % (basedir, os.getcwd()))
+
+    os.chmod('.pool/clojure', 0o755)
+
+    print '----------------------------------------------------'
+    print 'Use the following command to connect to clojure:'
+    print os.path.abspath('.pool/clojure')
+    print '----------------------------------------------------'
 
     threading.Thread(target=child_spawner).start()
 
@@ -41,10 +67,10 @@ def handle(sock):
     f.write('%s\n' % status)
 
 def spawn_child():
-    print 'spawning child'
     pipe_r, pipe_w = os.pipe()
     pipe_w = os.fdopen(pipe_w, 'w')
     proc = subprocess.Popen(child_args, stdin=pipe_r)
+    pids.append(proc.pid)
     return [pipe_w, proc.pid]
 
 def child_spawner():
@@ -53,4 +79,11 @@ def child_spawner():
         children.put(spawn_child())
 
 if __name__ == '__main__':
-    main()
+    if any( arg.startswith('-') for arg in sys.argv ) or len(sys.argv) > 2:
+        sys.exit('usage: %s [listen-directory]' % sys.argv[0])
+    if sys.argv[1:]:
+        os.chdir(sys.argv[1])
+    try:
+        main()
+    finally:
+        exit()

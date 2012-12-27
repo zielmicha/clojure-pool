@@ -7,17 +7,20 @@ Usage
 ----------------
 
 Build:
-    
+
     make
 
 Start server:
 
-    mkdir .pool
-    CLASSPATH=... python server.py
+    $ CLASSPATH=... python server.py
+    ----------------------------------------------------
+    Use the following command to connect to clojure:
+    /home/michal/myclojureapp/.pool/clojure
+    ----------------------------------------------------
 
 Run clojure:
-    
-    python client.py args...
+
+    $ /home/michal/myclojureapp/.pool/clojure
 
 Profit!
 ----------------
@@ -28,7 +31,7 @@ Profit!
     user    0m1.244s
     sys     0m0.036s
 
-    $ time python client.py ~/null.clj 
+    $ time .pool/clojure ~/null.clj
 
     real    0m0.089s
     user    0m0.020s
