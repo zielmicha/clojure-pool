@@ -8,11 +8,12 @@ Usage
 
 Build:
 
-    make
+    $ make
 
 Start server:
 
-    $ CLASSPATH=... python server.py
+	$ cd ~/myclojureapp
+    $ CLASSPATH=<whatever you wish> ~/clojure-pool/server.py
     ----------------------------------------------------
     Use the following command to connect to clojure:
     /home/michal/myclojureapp/.pool/clojure
