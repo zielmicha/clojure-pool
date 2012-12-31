@@ -16,6 +16,7 @@ else:
     os.environ['CLASSPATH'] = ''
 
 basedir = os.environ['POOL_BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
+org_classpath = os.environ['CLASSPATH']
 os.environ['CLASSPATH'] += basedir
 pids = []
 
@@ -41,6 +42,8 @@ def main():
                 'exec %s/client.py --server %s $*\n' % (basedir, os.getcwd()))
 
     os.chmod('.pool/clojure', 0o755)
+    with open('.pool/cp', 'w') as f:
+        f.write(org_classpath)
 
     print '----------------------------------------------------'
     print 'Use the following command to connect to clojure:'

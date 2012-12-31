@@ -30,9 +30,9 @@ except socket.error, err:
     import time
     if err.errno == errno.ECONNREFUSED:
         server_path = os.path.join(os.path.dirname(__file__), 'server.py')
-        os.environ['CLASSPATH'] = '.'
+        os.environ['CLASSPATH'] = open('%s/.pool/cp' % dir).read()
         if sys.stderr.isatty():
-            print >>sys.stderr, 'starting Clojure Pool server on `screen` with CLASSPATH=.'
+            print >>sys.stderr, 'starting Clojure Pool server on `screen` with CLASSPATH=%s' % os.environ['CLASSPATH']
         subprocess.check_call(['screen', '-d', '-m', '-S', 'clojurepool', server_path])
         for i in xrange(5):
             try:
