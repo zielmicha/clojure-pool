@@ -1,4 +1,5 @@
-(ns stub)
+(ns stub
+  [:require stacktrace])
 (println "classpath:" (seq (.getURLs (java.lang.ClassLoader/getSystemClassLoader))))
 (import DupHelper)
 
@@ -17,6 +18,8 @@
   (def arg-count (Integer/parseInt (.readLine input)))
   (def args (map (fn [n] (.readLine input)) (range arg-count)))
   (binding [*command-line-args* (vec (rest args))]
-    (load-file (first args))))
+    (try
+      (load-file (first args))
+      (catch Throwable err (stacktrace/print-throwable-trace err)))))
 
 (-main)
