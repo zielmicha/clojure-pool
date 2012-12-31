@@ -88,6 +88,10 @@ if __name__ == '__main__':
     if sys.argv[1:]:
         os.chdir(sys.argv[1])
     try:
-        main()
+        try:
+            main()
+        except:
+            import traceback
+            traceback.print_exc()
     finally:
         exit()
