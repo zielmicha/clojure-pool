@@ -64,3 +64,8 @@
 (defn print-throwable-trace [t]
   (println (str color-header "Traceback (most recent call last):" color-normal))
   (print-throwable-trace-noheader t))
+
+(defmacro with-stacktrace [& body]
+  '(try
+    ~@body
+    (catch Throwable err (print-throwable-trace err))))
