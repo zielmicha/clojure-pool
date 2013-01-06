@@ -38,8 +38,8 @@ def main():
         os.remove('.pool/serv')
 
     with open('.pool/clojure', 'w') as f:
-        f.write('#!/bin/bash\nif [ $# = 0 ]; then echo "usage: $0 script.clj args..."; exit 1; fi\n'
-                'exec %s/client.py --server %s $*\n' % (basedir, os.getcwd()))
+        f.write('#!/bin/bash\nif [ $# = 0 ]; then exec $0 %s/repl.clj; exit 1; fi\n'
+                'exec %s/client.py --server %s $*\n' % (basedir, basedir, os.getcwd()))
 
     os.chmod('.pool/clojure', 0o755)
     with open('.pool/cp', 'w') as f:
