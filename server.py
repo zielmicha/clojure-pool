@@ -18,6 +18,7 @@ else:
 basedir = os.environ['POOL_BASEDIR'] = os.path.abspath(os.path.dirname(__file__))
 org_classpath = os.environ['CLASSPATH']
 os.environ['CLASSPATH'] += basedir
+os.environ['CLASSPATH'] = os.environ['CLASSPATH'].strip(':')
 pids = []
 
 def exit():
