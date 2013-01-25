@@ -1,9 +1,10 @@
 (ns stacktrace)
 
-(def format-single)
-(def load-line)
-(def read-file-or-nil)
-(def read-file-from-classpath)
+(declare format-single
+         load-line-from-frame
+         load-line
+         read-file-or-nil
+         read-file-from-classpath)
 
 (def color-clojure "\033[1;32m")
 (def color-header "\033[1;4m")
@@ -23,13 +24,19 @@
         is-clojure (.endsWith (:fn stru) ".clj")]
     (str (if is-clojure color-clojure)
          (format "  File '%s', line %d, in %s.%s" (:fn stru) (:lineno stru) (:class stru) (:method stru))
-         (let [line (load-line (:fn stru) (:lineno stru))]
+         (let [line (load-line-from-frame stru (:lineno stru))]
            (when line
              (str (if is-clojure color-code color-code-java)
                   "\n     "
                   (.trim line)
                   color-normal)))
          color-normal)))
+
+(defn load-line-from-frame [stru lineno]
+  (or
+   (load-line (:fn stru) lineno)
+   (let [fn (str (.replace (nth (.split (:class stru) "\\$") 0) "." "/") ".clj")]
+     (load-line fn lineno))))
 
 (defn load-line [fn lineno]
   (let [file (read-file-from-classpath fn)]
